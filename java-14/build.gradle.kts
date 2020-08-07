@@ -5,6 +5,6 @@ plugins {
 hypertraceDocker {
   defaultImage {
     imageName.set("java")
-    setTagNameTransform { tag -> "1.8.0_252" }
+    setTagNameTransform { tag -> "14.0.2" }
   }
 }
