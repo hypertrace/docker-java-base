@@ -1,4 +1,5 @@
-FROM gcr.io/distroless/java:8 AS jre
+ARG JAVA_VERSION
+FROM gcr.io/distroless/java:${JAVA_VERSION} AS jre
 
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
 FROM gcr.io/distroless/java:8-debug AS deps

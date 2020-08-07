@@ -2,12 +2,15 @@ plugins {
   id("org.hypertrace.docker-publish-plugin")
 }
 
+var javaVersion = "11.0.8-11.41.23"
+
 hypertraceDocker {
   defaultImage {
     imageName.set("java")
+    buildArgs.put("JAVA_VERSION", javaVersion)
     tags.forEach { it.onlyIf { false } }
-    tag("11.0.8-11.41.23")
-    tag("11.0.8")
-    tag("11")
+    tag(javaVersion)
+    tag(javaVersion.split('-')[0])
+    tag(javaVersion.split('.')[0])
   }
 }
