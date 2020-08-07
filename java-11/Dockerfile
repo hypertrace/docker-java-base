@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk-debian:11 AS jre
+FROM azul/zulu-openjdk-debian:11.0.8-11.41.23 AS jre
 
 # Needed for --strip-debug
 RUN apt-get -y update && apt-get -y install binutils
