@@ -54,12 +54,6 @@ jobs:
     steps:
       - setup_build_environment
       - gradle:
-          args: :tag -Prelease
-      - add_ssh_keys:
-          fingerprints:
-            - '9f:bb:a7:39:fa:3d:39:04:bd:c6:66:27:79:b1:49:86'
-      - run: git push origin $(./gradlew -q :printVersion)
-      - gradle:
           args: dockerPushImages
 
 workflows:
@@ -67,11 +61,11 @@ workflows:
   build-and-publish:
     jobs:
       - build
-#      - publish:
-#          context: hypertrace-publishing
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              only:
-#                - main
+      - publish:
+          context: hypertrace-publishing
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main
