@@ -3,7 +3,9 @@ version: 2.1
 executors:
   gradle_docker:
     docker:
-      - image: cimg/openjdk:11.0
+      # This image isn't used to build Java project, rather to invoke Docker with Gradle.
+      # The version of Docker on cimg/openjdk tends to be slightly behind cimg/base.
+      - image: cimg/openjdk:14.0.2
 
 commands:
   gradle:
@@ -18,29 +20,30 @@ commands:
     steps:
       - run:
           name: << parameters.args >>
-          command: ./gradlew << parameters.args >> --info --max-workers=2 -Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.console=plain --continue
+          command: ./gradlew << parameters.args >> --info --max-workers=2 -Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.console=plain
           when: << parameters.when >>
   setup_build_environment:
     description: 'Checkout, restore the cache, and setup docker'
     steps:
       - checkout
-      - run:
-          name: Generate cache key
-          command: find . -type f -name "*.gradle*" -o -name "gradle-wrapper*" -exec shasum {} + | sort > /tmp/checksum.txt && cat /tmp/checksum.txt
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "/tmp/checksum.txt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      - setup_remote_docker
+          keys: # Use gradle version for cache, so it doesn't download every time
+            - v1-dependencies-{{ checksum "./gradle/wrapper/gradle-wrapper.properties" }}
+      # The remote docker version is independent from what's installed in the gradle_docker image and defaults to Docker 17.
+      #   Use the latest value from https://circleci.com/docs/2.0/building-docker-images/#docker-version
+      - setup_remote_docker:
+          version: 19.03.12
   save_populated_cache:
     description: "Save the gradle binary to the cache so it doesn't have to redownload"
     steps:
       - save_cache:
           paths:
             - ~/.gradle
-          key: v1-dependencies-{{ checksum "/tmp/checksum.txt" }}
+          key: v1-dependencies-{{ checksum "./gradle/wrapper/gradle-wrapper.properties" }}
 
+# NOTE: Tags are based on JAVA_VERSION build args and different for each major Java version.
+# This means unlike other repositories, there is no "trigger tag" used here. New images will
+# push on any change to 'main', even a README update.
 jobs:
   build:
     executor: gradle_docker
