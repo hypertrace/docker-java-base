@@ -28,6 +28,9 @@ jdk.management.agent,\
 java.naming,jdk.naming.dns,\
 # TLS handehake with servers that use elliptic curve certificates
 jdk.crypto.ec,\
+# required for hadoop filesystem
+java.security.jgss,\
+jdk.security.auth,\
 # sun.misc.Unsafe and friends
 jdk.unsupported\
  --output jre
