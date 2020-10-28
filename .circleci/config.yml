@@ -4,6 +4,9 @@ executors:
   gradle_docker:
     docker:
       - image: cimg/openjdk:11.0
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
 
 commands:
   gradle:
@@ -33,6 +36,9 @@ commands:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - setup_remote_docker
+      - run:
+          name: Dockerhub login
+          command: echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
   save_populated_cache:
     description: "Save the gradle binary to the cache so it doesn't have to redownload"
     steps:
@@ -60,9 +66,13 @@ workflows:
   version: 2
   build-and-publish:
     jobs:
-      - build
+      - build:
+          context:
+            - dockerhub-read
       - publish:
-          context: hypertrace-publishing
+          context:
+            - hypertrace-publishing
+            - dockerhub-read
           requires:
             - build
           filters:
