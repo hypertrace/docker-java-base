@@ -32,7 +32,9 @@ jdk.crypto.ec,\
 java.security.jgss,\
 jdk.security.auth,\
 # sun.misc.Unsafe and friends
-jdk.unsupported\
+jdk.unsupported,\
+# jdk specific network options
+jdk.net\
  --output jre
 
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
