@@ -34,7 +34,9 @@ jdk.security.auth,\
 # sun.misc.Unsafe and friends
 jdk.unsupported,\
 # jdk specific network options
-jdk.net\
+jdk.net,\
+# zip, jar file systems
+jdk.zipfs\
  --output jre
 
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
