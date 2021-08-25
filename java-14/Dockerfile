@@ -52,11 +52,15 @@ RUN ln -s /busybox/sh /bin/sh
 
 COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
 
-COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1.2.8
-RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1
+COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1.2.11
+RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1
 
 COPY --from=jre /jre /usr/lib/jvm/zulu-14-amd64-slim
 RUN ln -s /usr/lib/jvm/zulu-14-amd64-slim/bin/java /usr/bin/java
+
+RUN GRPC_HEALTH_PROBE_VERSION=v0.4.5 && \
+    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
+    chmod +x /bin/grpc_health_probe
 
 # set JAVA_HOME
 ENV JAVA_HOME=/usr/lib/jvm/zulu-14-amd64-slim
