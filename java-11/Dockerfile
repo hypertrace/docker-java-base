@@ -42,6 +42,7 @@ jdk.zipfs\
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
 FROM gcr.io/distroless/java:11-debug AS deps
 
+# Debian-11 image
 FROM gcr.io/distroless/cc:debug
 
 MAINTAINER Hypertrace "https://www.hypertrace.org/"
@@ -52,8 +53,8 @@ RUN ln -s /busybox/sh /bin/sh
 
 COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
 
-COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1.2.8
-RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1
+COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1.2.11
+RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1
 
 COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64-slim
 RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/java /usr/bin/java
