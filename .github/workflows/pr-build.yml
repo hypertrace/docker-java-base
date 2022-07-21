@@ -49,7 +49,7 @@ jobs:
       - name: Scan docker image
         uses: azure/container-scan@v0.1
         with:
-          image-name: ${{ secrets.ARTIFACTORY_DOCKER_REGISTRY }}/traceable/trace-enricher:${{ steps.tag.outputs.tag }}
+          image-name: hypertrace/java:${{ steps.tag.outputs.tag }}
         env:
           DOCKLE_HOST: "unix:///var/run/docker.sock"
         continue-on-error: true
