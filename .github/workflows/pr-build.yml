@@ -42,17 +42,13 @@ jobs:
         with: 
           args: dockerBuildImages
 
-      - name: Determine docker tag
-        id: tag
-        run: echo ::set-output name=tag::$(./gradlew -q printDockerImageDefaultTag | head -1)
-
       - name: Scan docker image
         uses: azure/container-scan@v0.1
         with:
           image-name: hypertrace/java:11
         env:
           DOCKLE_HOST: "unix:///var/run/docker.sock"
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Scan docker image
         uses: azure/container-scan@v0.1
@@ -60,4 +56,4 @@ jobs:
           image-name: hypertrace/java:14
         env:
           DOCKLE_HOST: "unix:///var/run/docker.sock"
-        continue-on-error: true
+        continue-on-error: false
