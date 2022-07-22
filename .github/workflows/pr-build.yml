@@ -48,7 +48,7 @@ jobs:
           image-name: hypertrace/java:11
         env:
           DOCKLE_HOST: "unix:///var/run/docker.sock"
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Scan docker image
         uses: azure/container-scan@v0.1
