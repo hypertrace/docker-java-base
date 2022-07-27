@@ -56,4 +56,4 @@ jobs:
           image-name: hypertrace/java:14
         env:
           DOCKLE_HOST: "unix:///var/run/docker.sock"
-        continue-on-error: false
+        continue-on-error: true
