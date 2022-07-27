@@ -35,8 +35,6 @@ jdk.security.auth,\
 jdk.unsupported,\
 # jdk specific network options
 jdk.net,\
-# built-in http client
-java.net.http,\
 # zip, jar file systems
 jdk.zipfs\
  --output jre
