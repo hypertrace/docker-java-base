@@ -38,7 +38,9 @@ jdk.net,\
 # built-in http client
 java.net.http,\
 # zip, jar file systems
-jdk.zipfs\
+jdk.zipfs,\
+# jcmd module for NMT debugging
+jdk.jcmd\
  --output jre
 
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
@@ -60,6 +62,9 @@ RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1
 
 COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64-slim
 RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/java /usr/bin/java
+
+# softlink for jcmd binary util
+RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/jcmd  /usr/bin/jcmd
 
 # set JAVA_HOME
 ENV JAVA_HOME=/usr/lib/jvm/zulu-11-amd64-slim
