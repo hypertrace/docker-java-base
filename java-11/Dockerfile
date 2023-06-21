@@ -44,6 +44,9 @@ jdk.zipfs\
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
 FROM gcr.io/distroless/java:11-debug AS deps
 
+FROM amd64/debian:bullseye-slim As builder
+RUN apt update && apt install -y libjemalloc-dev
+
 # Debian-11 image
 FROM gcr.io/distroless/cc:debug
 
@@ -60,6 +63,11 @@ RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1
 
 COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64-slim
 RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/java /usr/bin/java
+
+# change rocksdb default memory allocator
+# https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libjemalloc* /usr/lib/x86_64-linux-gnu/
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
 
 # set JAVA_HOME
 ENV JAVA_HOME=/usr/lib/jvm/zulu-11-amd64-slim
