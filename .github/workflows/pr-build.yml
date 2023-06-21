@@ -28,7 +28,7 @@ jobs:
         with:
           args: dockerBuildImages
 
-      - name: Run Trivy vulnerability scanner
+      - name: Scan java-11 image
         uses: hypertrace/github-actions/trivy-image-scan@main
         with:
           image: hypertrace/java
@@ -36,7 +36,7 @@ jobs:
           category: java-11
           output-mode: github
 
-      - name: Run Trivy vulnerability scanner
+      - name: Scan java-14 image
         uses: hypertrace/github-actions/trivy-image-scan@main
         with:
           image: hypertrace/java
