@@ -44,11 +44,11 @@ jdk.zipfs\
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
 FROM gcr.io/distroless/java:11-debug AS deps
 
-FROM amd64/debian:bullseye-slim As builder
+FROM amd64/debian:bookworm-slim As builder
 RUN apt update && apt install -y libjemalloc-dev
 
-# Debian-11 image
-FROM gcr.io/distroless/cc:debug
+# Debian-12 image
+FROM gcr.io/distroless/cc-debian12:debug
 
 MAINTAINER Hypertrace "https://www.hypertrace.org/"
 

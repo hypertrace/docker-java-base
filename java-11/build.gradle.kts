@@ -2,7 +2,7 @@ plugins {
   id("org.hypertrace.docker-publish-plugin")
 }
 
-var javaVersion = "11.0.19-11.64.19"
+var javaVersion = "11.0.20.1-11.66.19"
 
 hypertraceDocker {
   defaultImage {

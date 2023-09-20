@@ -44,7 +44,7 @@ jdk.zipfs\
 # We extract JRE's hard dependencies, libz and SSL certs, from the fat JRE image.
 FROM gcr.io/distroless/java:11-debug AS deps
 
-FROM gcr.io/distroless/cc:debug
+FROM gcr.io/distroless/cc-debian12:debug
 
 MAINTAINER Hypertrace "https://www.hypertrace.org/"
 
