@@ -58,8 +58,8 @@ RUN ln -s /busybox/sh /bin/sh
 
 COPY --from=deps /etc/ssl/certs/java /etc/ssl/certs/java
 
-COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1.2.11
-RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1
+COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1.2.13 /lib/x86_64-linux-gnu/libz.so.1.2.13
+RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.13 /lib/x86_64-linux-gnu/libz.so.1
 
 COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64-slim
 RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/java /usr/bin/java
