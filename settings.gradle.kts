@@ -8,3 +8,4 @@ pluginManagement {
 
 include(":java-11")
 include(":java-14")
+include(":java-21")
