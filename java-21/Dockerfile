@@ -63,9 +63,9 @@ COPY --from=ssl /etc/ssl/certs/java /etc/ssl/certs/java
 COPY --from=jre /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1.2.11
 RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1
 
-COPY --from=jre /jre /usr/lib/jvm/zulu-11-amd64-slim
-RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/java /usr/bin/java
-RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/jfr /usr/bin/jfr
+COPY --from=jre /jre /usr/lib/jvm/zulu-21-amd64-slim
+RUN ln -s /usr/lib/jvm/zulu-21-amd64-slim/bin/java /usr/bin/java
+RUN ln -s /usr/lib/jvm/zulu-21-amd64-slim/bin/jfr /usr/bin/jfr
 
 # change rocksdb default memory allocator
 # https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb
@@ -73,6 +73,6 @@ COPY --from=builder /usr/lib/x86_64-linux-gnu/libjemalloc* /usr/lib/x86_64-linux
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
 
 # set JAVA_HOME
-ENV JAVA_HOME=/usr/lib/jvm/zulu-11-amd64-slim
+ENV JAVA_HOME=/usr/lib/jvm/zulu-21-amd64-slim
 
 ENTRYPOINT ["/usr/bin/java", "-jar"]
