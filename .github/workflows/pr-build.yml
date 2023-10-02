@@ -36,10 +36,10 @@ jobs:
           category: java-11
           output-mode: github
 
-      - name: Scan java-14 image
+      - name: Scan java-21 image
         uses: hypertrace/github-actions/trivy-image-scan@main
         with:
           image: hypertrace/java
-          tag: 14
-          category: java-14
+          tag: 21
+          category: java-21
           output-mode: github
