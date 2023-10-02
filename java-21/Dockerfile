@@ -44,7 +44,7 @@ jdk.zipfs\
  --output jre
 
 # Extract java SSL certs
-FROM gcr.io/distroless/java:11-debug AS ssl
+FROM gcr.io/distroless/java-base-debian12:debug AS ssl
 
 FROM amd64/debian:bookworm-slim As builder
 RUN apt update && apt install -y libjemalloc-dev
