@@ -70,7 +70,7 @@ RUN ln -s /usr/lib/jvm/zulu-21-amd64-slim/bin/jfr /usr/bin/jfr
 # change rocksdb default memory allocator
 # https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libjemalloc* /usr/lib/x86_64-linux-gnu/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libc.* /usr/lib/x86_64-linux-gnu/g
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libc.* /usr/lib/x86_64-linux-gnu/
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
 
 # set JAVA_HOME
