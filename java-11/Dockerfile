@@ -47,7 +47,7 @@ jdk.zipfs\
 FROM gcr.io/distroless/java-base-debian12:debug AS ssl
 
 FROM amd64/debian:bookworm-slim As builder
-RUN apt update && apt install -y libjemalloc-dev
+RUN apt update && apt install -y libjemalloc-dev libc6
 
 # Debian-12 image
 FROM gcr.io/distroless/cc-debian12:debug
@@ -70,6 +70,7 @@ RUN ln -s /usr/lib/jvm/zulu-11-amd64-slim/bin/jfr /usr/bin/jfr
 # change rocksdb default memory allocator
 # https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libjemalloc* /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libc.* /usr/lib/x86_64-linux-gnu/
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
 
 # set JAVA_HOME
