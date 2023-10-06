@@ -21,8 +21,8 @@ java.management,\
 jdk.jdwp.agent,\
 # JVM metrics such as garbage collection
 jdk.management,\
-# JFR for live monitoring, adds < 1MB to size
-jdk.jfr,jdk.management.jfr,\
+# JFR, JCMD for live monitoring, adds < 1MB to size
+jdk.jfr,jdk.management.jfr,jdk.jcmd\
 # prevents us from needing a different base layer for kafka-zookeeper
 # ZooKeeper needs jdk.management.agent, and adding it is 900K vs 200M for a different base layer
 jdk.management.agent,\
@@ -66,6 +66,7 @@ RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1
 COPY --from=jre /jre /usr/lib/jvm/zulu-21-amd64-slim
 RUN ln -s /usr/lib/jvm/zulu-21-amd64-slim/bin/java /usr/bin/java
 RUN ln -s /usr/lib/jvm/zulu-21-amd64-slim/bin/jfr /usr/bin/jfr
+RUN ln -s /usr/lib/jvm/zulu-21-amd64-slim/bin/jcmd /usr/bin/jcmd
 
 # change rocksdb default memory allocator
 # https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb
