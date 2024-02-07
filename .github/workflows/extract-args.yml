@@ -24,4 +24,4 @@ jobs:
           BASE_JAVA_VERSION=$(echo $TOTAL_JAVA_VERSION | cut -d'-' -f1)
           MAJOR_JAVA_VERSION=$(echo $BASE_JAVA_VERSION | cut -d'.' -f1)
           echo "${{ inputs.prefix }}_IMAGE_TAGS=${{ inputs.image }}:$MAJOR_JAVA_VERSION,${{ inputs.image }}:$BASE_JAVA_VERSION,${{ inputs.image }}:$TOTAL_JAVA_VERSION" >> $GITHUB_ENV
-          echo "${{ inputs.prefix }}_ARGS_CONTENT=$(cat ${{ inputs.file }})" >> $GITHUB_ENV
+          echo "${{ inputs.prefix }}_ARGS_CONTENT=\"$(cat ${{ inputs.file }})\"" >> $GITHUB_ENV
