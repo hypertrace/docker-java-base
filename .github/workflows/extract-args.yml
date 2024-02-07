@@ -32,4 +32,8 @@ jobs:
           BASE_JAVA_VERSION=$(echo $TOTAL_JAVA_VERSION | cut -d'-' -f1)
           MAJOR_JAVA_VERSION=$(echo $BASE_JAVA_VERSION | cut -d'.' -f1)
           echo "tags=${{ inputs.image }}:$MAJOR_JAVA_VERSION,${{ inputs.image }}:$BASE_JAVA_VERSION,${{ inputs.image }}:$TOTAL_JAVA_VERSION" >> $GITHUB_OUTPUT
-          echo "args=\"$(cat ${{ inputs.file }})\"" >> $GITHUB_OUTPUT
+          {
+            echo 'args<<EOF'
+            cat ${{ inputs.file }}
+            echo EOF
+          } >> $GITHUB_OUTPUT

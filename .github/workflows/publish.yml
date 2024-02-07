@@ -12,17 +12,18 @@ jobs:
     with:
       file: java-11/args.env
       image: hypertrace/java
-      prefix: JAVA11
 
   extract-args-java-21:
     uses: ./.github/workflows/extract-args.yml
     with:
       file: java-21/args.env
       image: hypertrace/java
-      prefix: JAVA21
 
   publish:
     runs-on: ubuntu-22.04
+    needs:
+      - extract-args-java-11
+      - extract-args-java-21
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,8 +46,8 @@ jobs:
           context: java-11
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ${{ env.JAVA11_ARGS_CONTENT }}
-          tags: ${{ env.JAVA11_IMAGE_TAGS }}
+            ${{ needs.extract-args-java-11.outputs.args }}
+          tags: ${{ needs.extract-args-java-11.outputs.tags }}
           push: true
           
       - name: Publish java 21
@@ -55,6 +56,6 @@ jobs:
           context: java-21
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ${{ env.JAVA21_ARGS_CONTENT }}
-          tags: ${{ env.JAVA21_IMAGE_TAGS }}
+            ${{ needs.extract-args-java-21.outputs.args }}
+          tags: ${{ needs.extract-args-java-21.outputs.tags }}
           push: true
