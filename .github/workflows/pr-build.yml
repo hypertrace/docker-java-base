@@ -11,14 +11,12 @@ jobs:
     with:
       file: java-11/args.env
       image: hypertrace/java
-      prefix: JAVA11
 
   extract-args-java-21:
     uses: ./.github/workflows/extract-args.yml
     with:
       file: java-21/args.env
       image: hypertrace/java
-      prefix: JAVA21
 
   build:
     runs-on: ubuntu-22.04
@@ -38,14 +36,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_READ_USER }}
           password: ${{ secrets.DOCKERHUB_READ_TOKEN }}
 
+      - name: debug
+        shell: bash
+        run: |
+          echo "${{ needs.extract-args-java-11.outputs.tags }}"
+          echo "${{ needs.extract-args-java-11.outputs.args }}"
+
       - name: Build java-11
         uses: docker/build-push-action@v5
         with:
           context: java-11
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ${{ env.JAVA11_ARGS_CONTENT }}
-          tags: ${{ env.JAVA11_IMAGE_TAGS }}
+            ${{ needs.extract-args-java-11.outputs.args }}
+          tags: ${{ needs.extract-args-java-11.outputs.tags }}
 
       - name: Build java-21
         uses: docker/build-push-action@v5
@@ -53,8 +57,8 @@ jobs:
           context: java-21
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ${{ env.JAVA21_ARGS_CONTENT }}
-          tags: ${{ env.JAVA21_IMAGE_TAGS }}
+            ${{ needs.extract-args-java-21.outputs.args }}
+          tags: ${{ needs.extract-args-java-21.outputs.tags }}
 
       - name: Scan java-11 image
         uses: hypertrace/github-actions/trivy-image-scan@main
