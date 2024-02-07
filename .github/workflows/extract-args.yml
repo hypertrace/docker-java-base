@@ -32,6 +32,10 @@ jobs:
           BASE_JAVA_VERSION=$(echo $TOTAL_JAVA_VERSION | cut -d'-' -f1)
           MAJOR_JAVA_VERSION=$(echo $BASE_JAVA_VERSION | cut -d'.' -f1)
           echo "tags=${{ inputs.image }}:$MAJOR_JAVA_VERSION,${{ inputs.image }}:$BASE_JAVA_VERSION,${{ inputs.image }}:$TOTAL_JAVA_VERSION" >> $GITHUB_OUTPUT
-          echo 'args<<EOF' >> $GITHUB_OUTPUT
-          cat ${{ inputs.file }} >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+
+          # multi line output of content in input file
+          # https://github.com/orgs/community/discussions/26288#discussioncomment-3876281
+          delimiter="$(openssl rand -hex 8)"
+          echo "args<<${delimiter}" >> "${GITHUB_OUTPUT}"
+          cat ${{ inputs.file }} >> "${GITHUB_OUTPUT}"
+          echo "${delimiter}" >> "${GITHUB_OUTPUT}"
