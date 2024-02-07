@@ -19,8 +19,8 @@ jobs:
   parse:
     runs-on: ubuntu-22.04
     outputs:
-      tags: ${{ steps.extract.outputs.test }}
-      args: ${{ steps.extract.outputs.test }}
+      tags: ${{ steps.extract.outputs.tags }}
+      args: ${{ steps.extract.outputs.args }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
