@@ -1,6 +1,9 @@
 on:
   workflow_call:
     inputs:
+      prefix:
+        required: true
+        type: string
       file:
         required: true
         type: string
@@ -17,8 +20,5 @@ jobs:
           TOTAL_JAVA_VERSION=$(cat ${{ inputs.file }} | grep "JAVA_VERSION" | cut -d'=' -f2)
           BASE_JAVA_VERSION=$(echo $TOTAL_JAVA_VERSION | cut -d'-' -f1)
           MAJOR_JAVA_VERSION=$(echo $BASE_JAVA_VERSION | cut -d'.' -f1)
-          echo "IMAGE_TAGS=${{ inputs.image }}:$MAJOR_JAVA_VERSION,${{ inputs.image }}:$BASE_JAVA_VERSION,${{ inputs.image }}:$TOTAL_JAVA_VERSION" >> $GITHUB_ENV
-          echo "ARGS_CONTENT=$(cat ${{ inputs.file }})" >> $GITHUB_ENV
-      - shell: bash
-        run: |
-          echo "Image tags extracted: ${{ env.IMAGE_TAGS }}"
+          echo "${{ inputs.prefix }}_IMAGE_TAGS=${{ inputs.image }}:$MAJOR_JAVA_VERSION,${{ inputs.image }}:$BASE_JAVA_VERSION,${{ inputs.image }}:$TOTAL_JAVA_VERSION" >> $GITHUB_ENV
+          echo "${{ inputs.prefix }}_ARGS_CONTENT=$(cat ${{ inputs.file }})" >> $GITHUB_ENV

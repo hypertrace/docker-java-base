@@ -7,7 +7,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish-java-11:
+  extract-args-java-11:
+    uses: ./.github/workflows/extract-args.yml
+    with:
+      file: java-11/args.env
+      image: hypertrace/java
+      prefix: JAVA11
+
+  extract-args-java-21:
+    uses: ./.github/workflows/extract-args.yml
+    with:
+      file: java-21/args.env
+      image: hypertrace/java
+      prefix: JAVA21
+
+  publish:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -24,12 +38,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_PUBLISH_USER }}
           password: ${{ secrets.DOCKERHUB_PUBLISH_TOKEN }}
-
-      - name: Extract args
-        uses: ./.github/workflows/extract-args.yml
-        with:
-          file: java-11/args.env
-          image: hypertrace/java
 
       - name: Publish java 11
         uses: docker/build-push-action@v5
@@ -37,40 +45,16 @@ jobs:
           context: java-11
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ${{ env.ARGS_CONTENT }}
-          tags: ${{ env.IMAGE_TAGS }}
+            ${{ env.JAVA11_ARGS_CONTENT }}
+          tags: ${{ env.JAVA11_IMAGE_TAGS }}
           push: true
-
-  publish-java-21:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_PUBLISH_USER }}
-          password: ${{ secrets.DOCKERHUB_PUBLISH_TOKEN }}
-
-      - name: Extract args
-        uses: ./.github/workflows/extract-args.yml
-        with:
-          file: java-21/args.env
-          image: hypertrace/java
-
+          
       - name: Publish java 21
         uses: docker/build-push-action@v5
         with:
           context: java-21
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ${{ env.ARGS_CONTENT }}
-          tags: ${{ env.IMAGE_TAGS }}
+            ${{ env.JAVA21_ARGS_CONTENT }}
+          tags: ${{ env.JAVA21_IMAGE_TAGS }}
           push: true
