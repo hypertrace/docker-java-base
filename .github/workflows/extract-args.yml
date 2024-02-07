@@ -18,11 +18,15 @@ on:
 jobs:
   parse:
     runs-on: ubuntu-22.04
+    outputs:
+      tags: ${{ steps.extract.outputs.test }}
+      args: ${{ steps.extract.outputs.test }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         
       - shell: bash
+        id: extract
         run: |
           TOTAL_JAVA_VERSION=$(cat ${{ inputs.file }} | grep "JAVA_VERSION" | cut -d'=' -f2)
           BASE_JAVA_VERSION=$(echo $TOTAL_JAVA_VERSION | cut -d'-' -f1)
