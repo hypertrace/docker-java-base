@@ -39,12 +39,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_READ_USER }}
           password: ${{ secrets.DOCKERHUB_READ_TOKEN }}
 
-      - name: debug
-        shell: bash
-        run: |
-          echo "${{ needs.extract-args-java-11.outputs.tags }}"
-          echo "${{ needs.extract-args-java-11.outputs.args }}"
-
       - name: Build java-11
         uses: docker/build-push-action@v5
         with:
