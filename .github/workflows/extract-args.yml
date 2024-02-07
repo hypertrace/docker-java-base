@@ -15,6 +15,9 @@ jobs:
   extract-args:
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
       - shell: bash
         run: |
           TOTAL_JAVA_VERSION=$(cat ${{ inputs.file }} | grep "JAVA_VERSION" | cut -d'=' -f2)
