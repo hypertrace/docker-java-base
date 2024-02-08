@@ -7,23 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  extract-args-java-11:
-    uses: ./.github/workflows/extract-args.yml
-    with:
-      file: java-11/args.env
-      image: hypertrace/java
-
-  extract-args-java-21:
-    uses: ./.github/workflows/extract-args.yml
-    with:
-      file: java-21/args.env
-      image: hypertrace/java
-
   publish:
     runs-on: ubuntu-22.04
-    needs:
-      - extract-args-java-11
-      - extract-args-java-21
+    strategy:
+      matrix:
+        java-major-version: [11, 21]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,22 +28,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_PUBLISH_USER }}
           password: ${{ secrets.DOCKERHUB_PUBLISH_TOKEN }}
 
-      - name: Publish java 11
+      - name: Read Java Version
+        shell: bash
+        id: versions
+        run: |
+          ZULU_JDK_VERSION=`cat ${{ matrix.java-major-version}}/java.version}}`
+          echo ZULU_JDK_VERSION=${ZULU_JDK_VERSION} >> $GITHUB_OUTPUT
+          echo JAVA_MAJOR_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'.' -f1)" >> $GITHUB_OUTPUT
+          echo JAVA_FULL_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'-' -f1) >> $GITHUB_OUTPUT
+
+      - name: Publish Java ${{ matrix.java-major-version}} image
         uses: docker/build-push-action@v5
         with:
-          context: java-11
+          context: java-${{ matrix.java-major-version}}
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ${{ needs.extract-args-java-11.outputs.args }}
-          tags: ${{ needs.extract-args-java-11.outputs.tags }}
-          push: true
-          
-      - name: Publish java 21
-        uses: docker/build-push-action@v5
-        with:
-          context: java-21
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            ${{ needs.extract-args-java-21.outputs.args }}
-          tags: ${{ needs.extract-args-java-21.outputs.tags }}
+            JAVA_VERSION=${{ steps.versions.outputs.ZULU_JDK_VERSION }}
+          tags: hypertrace/java:${{ steps.versions.outputs.JAVA_MAJOR_VERSION }},hypertrace/java:${{ steps.versions.outputs.JAVA_FULL_VERSION }}
           push: true
