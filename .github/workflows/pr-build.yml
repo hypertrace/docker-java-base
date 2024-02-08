@@ -32,7 +32,7 @@ jobs:
         shell: bash
         id: versions
         run: |
-          ZULU_JDK_VERSION=`cat java-${{ matrix.java-major-version}}/java.version}}`
+          ZULU_JDK_VERSION=`cat java-${{ matrix.java-major-version}}/java.version`
           echo ZULU_JDK_VERSION=${ZULU_JDK_VERSION} >> $GITHUB_OUTPUT
 
       - name: Build java-${{ matrix.java-major-version}}
