@@ -3,43 +3,52 @@ on:
   push:
     branches:
       - main
-  pull_request_target:
-    branches:
-      - main
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        java-major-version: [11, 21]
+        platform: [linux/amd64, linux/arm64]
     steps:
-       # Set fetch-depth: 0 to fetch commit history and tags for use in version calculation
-      - name: Check out code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_READ_USER }}
           password: ${{ secrets.DOCKERHUB_READ_TOKEN }}
 
-      - name: Build with Gradle
-        uses: hypertrace/github-actions/gradle@main
-        with:
-          args: dockerBuildImages
+      - name: Read Java Version
+        shell: bash
+        id: versions
+        run: |
+          ZULU_JDK_VERSION=`cat java-${{ matrix.java-major-version}}/java.version`
+          echo ZULU_JDK_VERSION=${ZULU_JDK_VERSION} >> $GITHUB_OUTPUT
 
-      - name: Scan java-11 image
+      - name: Build java-${{ matrix.java-major-version}}
+        uses: docker/build-push-action@v5
+        with:
+          context: java-${{ matrix.java-major-version}}
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            JAVA_VERSION=${{ steps.versions.outputs.ZULU_JDK_VERSION }}
+          tags: hypertrace/java-build:${{ matrix.java-major-version}}
+          load: true
+
+      - name: Scan java-${{ matrix.java-major-version}} image
         uses: hypertrace/github-actions/trivy-image-scan@main
         with:
-          image: hypertrace/java
-          tag: 11
-          category: java-11
-          output-mode: github
-
-      - name: Scan java-21 image
-        uses: hypertrace/github-actions/trivy-image-scan@main
-        with:
-          image: hypertrace/java
-          tag: 21
-          category: java-21
+          image: hypertrace/java-build
+          tag: ${{ matrix.java-major-version}}
+          category: java-${{ matrix.java-major-version}}
           output-mode: github
