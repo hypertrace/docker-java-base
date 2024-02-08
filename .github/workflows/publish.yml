@@ -34,7 +34,7 @@ jobs:
         run: |
           ZULU_JDK_VERSION=`cat java-${{ matrix.java-major-version}}/java.version`
           echo ZULU_JDK_VERSION=${ZULU_JDK_VERSION} >> $GITHUB_OUTPUT
-          echo JAVA_MAJOR_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'.' -f1)" >> $GITHUB_OUTPUT
+          echo JAVA_MAJOR_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'.' -f1) >> $GITHUB_OUTPUT
           echo JAVA_FULL_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'-' -f1) >> $GITHUB_OUTPUT
 
       - name: Publish Java ${{ matrix.java-major-version}} image
