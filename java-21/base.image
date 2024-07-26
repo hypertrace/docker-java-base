@@ -1,0 +1,1 @@
+gcr.io/distroless/cc-debian12:debug@sha256:133c2e182e87c72c5efff9a3743f31542841425e9810b4a8371a9b95e06d1bd7 AS base-amd64

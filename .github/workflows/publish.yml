@@ -32,10 +32,12 @@ jobs:
         shell: bash
         id: versions
         run: |
-          ZULU_JDK_VERSION=`cat java-${{ matrix.java-major-version}}/java.version`
+          ZULU_JDK_VERSION=$(cat java-${{ matrix.java-major-version}}/java.version | tr -d "\n")
           echo ZULU_JDK_VERSION=${ZULU_JDK_VERSION} >> $GITHUB_OUTPUT
           echo JAVA_MAJOR_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'.' -f1) >> $GITHUB_OUTPUT
           echo JAVA_FULL_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'-' -f1) >> $GITHUB_OUTPUT
+          BASE_IMAGE=$(cat java-${{ matrix.java-major-version}}/base.image | tr -d "\n")
+          echo BASE_IMAGE=${BASE_IMAGE} >> $GITHUB_OUTPUT
 
       - name: Publish Java ${{ matrix.java-major-version}} image
         uses: docker/build-push-action@v5
@@ -44,5 +46,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             JAVA_VERSION=${{ steps.versions.outputs.ZULU_JDK_VERSION }}
+            BASE_IMAGE=${{ steps.versions.outputs.BASE_IMAGE }}
           tags: hypertrace/java:${{ steps.versions.outputs.JAVA_MAJOR_VERSION }},hypertrace/java:${{ steps.versions.outputs.JAVA_FULL_VERSION }}
           push: true

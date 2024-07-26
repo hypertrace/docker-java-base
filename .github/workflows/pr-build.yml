@@ -32,8 +32,10 @@ jobs:
         shell: bash
         id: versions
         run: |
-          ZULU_JDK_VERSION=`cat java-${{ matrix.java-major-version}}/java.version`
+          ZULU_JDK_VERSION=$(cat java-${{ matrix.java-major-version}}/java.version | tr -d "\n")
           echo ZULU_JDK_VERSION=${ZULU_JDK_VERSION} >> $GITHUB_OUTPUT
+          BASE_IMAGE=$(cat java-${{ matrix.java-major-version}}/base.image | tr -d "\n")
+          echo BASE_IMAGE=${BASE_IMAGE} >> $GITHUB_OUTPUT
 
       - name: Build java-${{ matrix.java-major-version}}
         uses: docker/build-push-action@v5
@@ -42,6 +44,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           build-args: |
             JAVA_VERSION=${{ steps.versions.outputs.ZULU_JDK_VERSION }}
+            BASE_IMAGE=${{ steps.versions.outputs.BASE_IMAGE }}
           tags: hypertrace/java-build:${{ matrix.java-major-version}}
           load: true
 
