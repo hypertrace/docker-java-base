@@ -50,7 +50,7 @@ FROM debian:bookworm-slim AS builder
 RUN apt update && apt install -y libjemalloc-dev
 
 # stage for amd64
-FROM gcr.io/distroless/cc-debian12:debug AS base-amd64
+FROM gcr.io/distroless/cc-debian12:debug@sha256:133c2e182e87c72c5efff9a3743f31542841425e9810b4a8371a9b95e06d1bd7 AS base-amd64
 
 SHELL ["/busybox/sh", "-c"]
 RUN ln -s /busybox/sh /bin/sh
@@ -63,7 +63,7 @@ COPY --from=builder /usr/lib/x86_64-linux-gnu/libjemalloc* /usr/lib/x86_64-linux
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
 
 # stage for arm64
-FROM gcr.io/distroless/cc-debian12:debug AS base-arm64
+FROM gcr.io/distroless/cc-debian12:debug@sha256:133c2e182e87c72c5efff9a3743f31542841425e9810b4a8371a9b95e06d1bd7 AS base-arm64
 
 SHELL ["/busybox/sh", "-c"]
 RUN ln -s /busybox/sh /bin/sh
