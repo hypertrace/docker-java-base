@@ -55,8 +55,8 @@ FROM gcr.io/distroless/cc-debian12:debug AS base-amd64
 SHELL ["/busybox/sh", "-c"]
 RUN ln -s /busybox/sh /bin/sh
 
-COPY --from=jre /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1.2.11
-RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.11 /lib/x86_64-linux-gnu/libz.so.1
+COPY --from=jre /lib/x86_64-linux-gnu/libz.so.1.2.13 /lib/x86_64-linux-gnu/libz.so.1.2.13
+RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.13 /lib/x86_64-linux-gnu/libz.so.1
 
 # change default memory allocator to jemalloc
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libjemalloc* /usr/lib/x86_64-linux-gnu/
@@ -68,8 +68,8 @@ FROM gcr.io/distroless/cc-debian12:debug AS base-arm64
 SHELL ["/busybox/sh", "-c"]
 RUN ln -s /busybox/sh /bin/sh
 
-COPY --from=jre /lib/aarch64-linux-gnu/libz.so.1.2.11 /lib/aarch64-linux-gnu/libz.so.1.2.11
-RUN ln -s /lib/aarch64-linux-gnu/libz.so.1.2.11 /lib/aarch64-linux-gnu/libz.so.1
+COPY --from=jre /lib/aarch64-linux-gnu/libz.so.1.2.13 /lib/aarch64-linux-gnu/libz.so.1.2.13
+RUN ln -s /lib/aarch64-linux-gnu/libz.so.1.2.13 /lib/aarch64-linux-gnu/libz.so.1
 
 # change default memory allocator to jemalloc
 COPY --from=builder /usr/lib/aarch64-linux-gnu/libjemalloc* /usr/lib/aarch64-linux-gnu/
@@ -79,11 +79,9 @@ ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so
 ARG TARGETARCH
 FROM base-${TARGETARCH}
 
-MAINTAINER Hypertrace "https://www.hypertrace.org/"
-
 COPY --from=ssl /etc/ssl/certs/java /etc/ssl/certs/java
-
 COPY --from=jre /jre /usr/lib/jvm/zulu-21-slim
+
 RUN ln -s /usr/lib/jvm/zulu-21-slim/bin/java /usr/bin/java
 RUN ln -s /usr/lib/jvm/zulu-21-slim/bin/jfr /usr/bin/jfr
 
