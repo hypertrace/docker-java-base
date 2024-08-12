@@ -51,7 +51,7 @@ jobs:
           branch-suffix: timestamp
 
       - name: Enable Pull Request Automerge
-        if: steps.args.outputs.digest != 'null'
+        if: steps.create-pull-request.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -59,7 +59,7 @@ jobs:
           merge-method: squash
 
     #   - name: Approve Pull Request
-    #     if: steps.args.outputs.digest != 'null'
+    #     if: steps.create-pull-request.outputs.pull-request-number != ''
     #     uses: juliangruber/approve-pull-request-action@v2
     #     with:
     #       github-token: ${{ secrets.GITHUB_TOKEN }}
