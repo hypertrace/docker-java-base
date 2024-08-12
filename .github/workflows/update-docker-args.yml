@@ -24,7 +24,7 @@ jobs:
         run: |
           BASE_IMAGE="gcr.io/distroless/cc-debian12"
           BASE_IMAGE_TAG="debug"
-          BASE_IMAGE_DIGEST=$(gcloud container images list-tags $BASE_IMAGE --format json | jq --arg tag "$BASE_IMAGE_TAG" -r '.[] | {digest: .digest, tag: .tags[]} | select(.tag == $tag) | .digest')
+          BASE_IMAGE_DIGEST=$(gcloud container images list-tags $BASE_IMAGE --filter="tags=$BASE_IMAGE_TAG" --format json | jq --arg tag "$BASE_IMAGE_TAG" -r '.[] | {digest: .digest, tag: .tags[]} | select(.tag == $tag) | .digest')
           if [ -n "$BASE_IMAGE_DIGEST" ]; then
             echo -n "${BASE_IMAGE}:${BASE_IMAGE_TAG}@${BASE_IMAGE_DIGEST}" > java-11/base.image
             echo -n "${BASE_IMAGE}:${BASE_IMAGE_TAG}@${BASE_IMAGE_DIGEST}" > java-21/base.image
