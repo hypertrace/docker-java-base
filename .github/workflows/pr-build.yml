@@ -49,7 +49,7 @@ jobs:
           load: true
 
       - name: Scan java-${{ matrix.java-major-version}} image
-        uses: hypertrace/github-actions/trivy-image-scan@trivy-db-public-ecr
+        uses: hypertrace/github-actions/trivy-image-scan@main
         with:
           image: hypertrace/java-build
           tag: ${{ matrix.java-major-version}}
