@@ -3,7 +3,7 @@ ARG BASE_IMAGE
 FROM azul/zulu-openjdk-debian:${JAVA_VERSION} AS jre
 
 # Needed for --strip-debug
-RUN apt-get -y update && apt-get -y install binutils
+RUN apt-get -y update && apt-get -y upgrade libssl3 && apt-get -y install binutils
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/21/docs/api/
 #
