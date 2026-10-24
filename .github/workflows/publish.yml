@@ -34,8 +34,14 @@ jobs:
         run: |
           ZULU_JDK_VERSION=$(cat java-${{ matrix.java-major-version}}/java.version | tr -d "\n")
           echo ZULU_JDK_VERSION=${ZULU_JDK_VERSION} >> $GITHUB_OUTPUT
-          echo JAVA_MAJOR_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'.' -f1) >> $GITHUB_OUTPUT
-          echo JAVA_FULL_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'-' -f1) >> $GITHUB_OUTPUT
+          echo JAVA_MAJOR_VERSION=$(echo $ZULU_JDK_VERSION | cut -d'.' -f1 | sed s/zulu//) >> $GITHUB_OUTPUT
+          if echo "$ZULU_JDK_VERSION" | grep -q 'ca-jdk'; then
+            # New Azul CDN filename format, e.g. zulu11.92.109-ca-jdk11.0.33: take the real OpenJDK version after "ca-jdk".
+            JAVA_FULL_VERSION=$(echo "$ZULU_JDK_VERSION" | sed 's/.*ca-jdk//')
+          else
+            JAVA_FULL_VERSION=$(echo "$ZULU_JDK_VERSION" | cut -d'-' -f1 | sed s/zulu//)
+          fi
+          echo JAVA_FULL_VERSION=${JAVA_FULL_VERSION} >> $GITHUB_OUTPUT
           BASE_IMAGE=$(cat java-${{ matrix.java-major-version}}/base.image | tr -d "\n")
           echo BASE_IMAGE=${BASE_IMAGE} >> $GITHUB_OUTPUT
 
