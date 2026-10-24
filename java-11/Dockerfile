@@ -5,19 +5,6 @@ FROM azul/zulu-openjdk-debian:${JAVA_VERSION} AS jre
 # Needed for --strip-debug
 RUN apt-get -y update && apt-get -y upgrade libssl3 && apt-get -y install binutils
 
-# Remove the eMudhra and Comodo CA certificates from the default JDK truststore
-# as described in https://openjdk.org/emudhra.
-# Check whether each alias exists before deletion to ensure compatibility with
-# future JDK versions where these certificates may no longer be present.
-
-RUN for alias in "emsigneccrootcag3 [jdk]" "comodoaaaca [jdk]"; do \
-    if keytool -list -cacerts -storepass changeit -alias "$alias" >/dev/null 2>&1; then \
-      keytool -delete -cacerts -storepass changeit -alias "$alias"; \
-    else \
-      echo "Certificate alias '$alias' not found; skipping deletion."; \
-    fi; \
-done
-
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/11/docs/api/
 #
 # jdk.unsupported is undocumented but contains Unsafe, which is used by several dependencies to
@@ -64,8 +51,8 @@ FROM gcr.io/distroless/java-base-debian12:debug AS ssl
 # Remove the base-ca and emudhra-clean stages and the "COPY --from=emudhra-clean" lines in the
 # final image once the Zulu JDK, the distroless java-base image and BASE_IMAGE no longer ship
 # these roots.
-# jlink copies cacerts out of java.base.jmod, so the cleanup above (before jlink) does not
-# reach /jre. The distroless store uses subject DN aliases and has no keytool.
+# jlink copies cacerts out of java.base.jmod, so the JDK's own cacerts is not what ships in /jre.
+# The distroless store uses subject DN aliases and has no keytool.
 # The PEM bundle in the final image comes from BASE_IMAGE and also has the eMudhra roots.
 FROM ${BASE_IMAGE} AS base-ca
 
