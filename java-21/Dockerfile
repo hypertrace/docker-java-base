@@ -65,8 +65,12 @@ FROM gcr.io/distroless/java-base-debian12:debug AS ssl
 # the Zulu JDK and the distroless java-base image no longer ship these roots.
 # jlink copies cacerts out of java.base.jmod, so the cleanup above (before jlink) does not
 # reach /jre. The distroless store uses subject DN aliases and has no keytool.
+# The PEM bundle in the final image comes from BASE_IMAGE and also has the eMudhra roots.
+FROM ${BASE_IMAGE} AS base-ca
+
 FROM jre AS emudhra-clean
 COPY --from=ssl /etc/ssl/certs/java /etc/ssl/certs/java
+COPY --from=base-ca /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 RUN for entry in \
     "/jre/lib/security/cacerts|emsigneccrootcag3 [jdk]" \
     "/jre/lib/security/cacerts|comodoaaaca [jdk]" \
@@ -79,6 +83,16 @@ RUN for entry in \
       echo "Certificate alias '$alias' not found in $store; skipping deletion."; \
     fi; \
 done
+# Drop every eMudhra root (emSign ECC Root CA - C3/G3, emSign Root CA - C1/G1) from the PEM bundle,
+# matched by subject.
+RUN mkdir /tmp/ca && cd /tmp/ca \
+    && awk '/-----BEGIN CERTIFICATE-----/{n++} n{print > sprintf("c%04d.pem", n)}' /etc/ssl/certs/ca-certificates.crt \
+    && for f in c*.pem; do \
+      if openssl x509 -in "$f" -noout -subject | grep -qi 'eMudhra'; then \
+        echo "Removing: $(openssl x509 -in "$f" -noout -subject)"; rm "$f"; \
+      fi; \
+    done \
+    && cat c*.pem > /etc/ssl/certs/ca-certificates.crt
 
 FROM debian:bookworm-slim AS builder
 RUN apt update && apt install -y libjemalloc-dev
@@ -118,6 +132,7 @@ COPY --from=jre /jre /usr/lib/jvm/zulu-21-slim
 # TEMP: eMudhra distrust, see emudhra-clean stage above
 COPY --from=emudhra-clean /jre/lib/security/cacerts /usr/lib/jvm/zulu-21-slim/lib/security/cacerts
 COPY --from=emudhra-clean /etc/ssl/certs/java/cacerts /etc/ssl/certs/java/cacerts
+COPY --from=emudhra-clean /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 RUN ln -s /usr/lib/jvm/zulu-21-slim/bin/java /usr/bin/java
 RUN ln -s /usr/lib/jvm/zulu-21-slim/bin/jfr /usr/bin/jfr
