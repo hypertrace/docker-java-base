@@ -5,8 +5,18 @@ FROM azul/zulu-openjdk-debian:${JAVA_VERSION} AS jre
 # Needed for --strip-debug
 RUN apt-get -y update && apt-get -y upgrade libssl3 && apt-get -y install binutils
 
-RUN keytool -delete -cacerts -storepass changeit -alias "emsigneccrootcag3 [jdk]" \
- && keytool -delete -cacerts -storepass changeit -alias "comodoaaaca [jdk]"
+# Remove the eMudhra and Comodo CA certificates from the default JDK truststore
+# as described in https://openjdk.org/emudhra.
+# Check whether each alias exists before deletion to ensure compatibility with
+# future JDK versions where these certificates may no longer be present.
+
+RUN for alias in "emsigneccrootcag3 [jdk]" "comodoaaaca [jdk]"; do \
+    if keytool -list -cacerts -storepass changeit -alias "$alias" >/dev/null 2>&1; then \
+      keytool -delete -cacerts -storepass changeit -alias "$alias"; \
+    else \
+      echo "Certificate alias '$alias' not found; skipping deletion."; \
+    fi; \
+done
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/21/docs/api/
 #
