@@ -5,6 +5,9 @@ FROM azul/zulu-openjdk-debian:${JAVA_VERSION} AS jre
 # Needed for --strip-debug
 RUN apt-get -y update && apt-get -y upgrade libssl3 && apt-get -y install binutils
 
+RUN keytool -delete -cacerts -storepass changeit -alias "emsigneccrootcag3 [jdk]" \
+ && keytool -delete -cacerts -storepass changeit -alias "comodoaaaca [jdk]"
+
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/21/docs/api/
 #
 # jdk.unsupported is undocumented but contains Unsafe, which is used by several dependencies to
