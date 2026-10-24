@@ -61,8 +61,9 @@ jdk.zipfs\
 FROM gcr.io/distroless/java-base-debian12:debug AS ssl
 
 # TEMP: eMudhra/Comodo AAA distrust, see https://openjdk.org/emudhra
-# Remove this stage and the two "COPY --from=emudhra-clean" lines in the final image once
-# the Zulu JDK and the distroless java-base image no longer ship these roots.
+# Remove the base-ca and emudhra-clean stages and the "COPY --from=emudhra-clean" lines in the
+# final image once the Zulu JDK, the distroless java-base image and BASE_IMAGE no longer ship
+# these roots.
 # jlink copies cacerts out of java.base.jmod, so the cleanup above (before jlink) does not
 # reach /jre. The distroless store uses subject DN aliases and has no keytool.
 # The PEM bundle in the final image comes from BASE_IMAGE and also has the eMudhra roots.
@@ -71,17 +72,16 @@ FROM ${BASE_IMAGE} AS base-ca
 FROM jre AS emudhra-clean
 COPY --from=ssl /etc/ssl/certs/java /etc/ssl/certs/java
 COPY --from=base-ca /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-RUN for entry in \
-    "/jre/lib/security/cacerts|emsigneccrootcag3 [jdk]" \
-    "/jre/lib/security/cacerts|comodoaaaca [jdk]" \
-    "/etc/ssl/certs/java/cacerts|cn=emsign ecc root ca - g3,o=emudhra technologies limited,ou=emsign pki,c=in" \
-    "/etc/ssl/certs/java/cacerts|cn=aaa certificate services,o=comodo ca limited,l=salford,st=greater manchester,c=gb"; do \
-    store="${entry%%|*}"; alias="${entry#*|}"; \
-    if keytool -list -keystore "$store" -storepass changeit -alias "$alias" >/dev/null 2>&1; then \
+# Java stores: delete every entry whose owner is eMudhra or AAA Certificate Services (matched by
+# subject, aliases differ between the two stores).
+RUN for store in /jre/lib/security/cacerts /etc/ssl/certs/java/cacerts; do \
+    keytool -list -v -keystore "$store" -storepass changeit \
+      | awk '/^Alias name: /{a=substr($0,13)} /^Owner: /{if (tolower($0) ~ /emudhra|aaa certificate services/) print a}' \
+      > /tmp/aliases; \
+    while IFS= read -r alias; do \
+      echo "Removing '$alias' from $store"; \
       keytool -delete -keystore "$store" -storepass changeit -alias "$alias"; \
-    else \
-      echo "Certificate alias '$alias' not found in $store; skipping deletion."; \
-    fi; \
+    done < /tmp/aliases; \
 done
 # Drop every eMudhra root (emSign ECC Root CA - C3/G3, emSign Root CA - C1/G1) from the PEM bundle,
 # matched by subject.
