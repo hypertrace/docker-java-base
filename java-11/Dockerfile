@@ -44,6 +44,17 @@ java.net.http,\
 jdk.zipfs\
  --output jre
 
+# TEMP: eMudhra blocklist, see https://docs.azul.com/core/emudhra-workaround.html
+# jlink copies blocked.certs from the JDK's jmods, so the fixed list has to be applied to the
+# jlinked runtime. The file is Azul's emudhra-block-unix.certs (SHA-256 below), which has the same
+# fingerprints as the Zulu 11.0.33 / 21.0.13 lists. Remove this and the COPY once the base image
+# is Zulu 11.0.33 / 21.0.13 or newer, otherwise it would hide later blocklist updates.
+COPY blocked.certs /tmp/emudhra-blocked.certs
+RUN echo "2596bb6dda83c66d96c5a252d7b2ae1f24cc1ae3f1890223b4f3591a8d52bf10  /tmp/emudhra-blocked.certs" | sha256sum -c - \
+    && cp /tmp/emudhra-blocked.certs /jre/lib/security/blocked.certs \
+    && chmod 644 /jre/lib/security/blocked.certs \
+    && rm /tmp/emudhra-blocked.certs
+
 # Extract java SSL certs
 FROM gcr.io/distroless/java-base-debian12:debug AS ssl
 
