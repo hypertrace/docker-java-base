@@ -60,6 +60,26 @@ jdk.zipfs\
 # Extract java SSL certs
 FROM gcr.io/distroless/java-base-debian12:debug AS ssl
 
+# TEMP: eMudhra/Comodo AAA distrust, see https://openjdk.org/emudhra
+# Remove this stage and the two "COPY --from=emudhra-clean" lines in the final image once
+# the Zulu JDK and the distroless java-base image no longer ship these roots.
+# jlink copies cacerts out of java.base.jmod, so the cleanup above (before jlink) does not
+# reach /jre. The distroless store uses subject DN aliases and has no keytool.
+FROM jre AS emudhra-clean
+COPY --from=ssl /etc/ssl/certs/java /etc/ssl/certs/java
+RUN for entry in \
+    "/jre/lib/security/cacerts|emsigneccrootcag3 [jdk]" \
+    "/jre/lib/security/cacerts|comodoaaaca [jdk]" \
+    "/etc/ssl/certs/java/cacerts|cn=emsign ecc root ca - g3,o=emudhra technologies limited,ou=emsign pki,c=in" \
+    "/etc/ssl/certs/java/cacerts|cn=aaa certificate services,o=comodo ca limited,l=salford,st=greater manchester,c=gb"; do \
+    store="${entry%%|*}"; alias="${entry#*|}"; \
+    if keytool -list -keystore "$store" -storepass changeit -alias "$alias" >/dev/null 2>&1; then \
+      keytool -delete -keystore "$store" -storepass changeit -alias "$alias"; \
+    else \
+      echo "Certificate alias '$alias' not found in $store; skipping deletion."; \
+    fi; \
+done
+
 FROM debian:bookworm-slim AS builder
 RUN apt update && apt install -y libjemalloc-dev
 
@@ -95,6 +115,9 @@ FROM base-${TARGETARCH}
 
 COPY --from=ssl /etc/ssl/certs/java /etc/ssl/certs/java
 COPY --from=jre /jre /usr/lib/jvm/zulu-21-slim
+# TEMP: eMudhra distrust, see emudhra-clean stage above
+COPY --from=emudhra-clean /jre/lib/security/cacerts /usr/lib/jvm/zulu-21-slim/lib/security/cacerts
+COPY --from=emudhra-clean /etc/ssl/certs/java/cacerts /etc/ssl/certs/java/cacerts
 
 RUN ln -s /usr/lib/jvm/zulu-21-slim/bin/java /usr/bin/java
 RUN ln -s /usr/lib/jvm/zulu-21-slim/bin/jfr /usr/bin/jfr
