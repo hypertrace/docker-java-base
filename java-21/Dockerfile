@@ -1,9 +1,33 @@
+# Zulu build name, e.g. zulu21.54.107-ca-jdk21.0.13 (see java.version)
 ARG JAVA_VERSION
 ARG BASE_IMAGE
-FROM azul/zulu-openjdk-debian:${JAVA_VERSION} AS jre
+# The azul/zulu-openjdk-debian image has no tag with the eMudhra blocked.certs fix yet, so fetch the
+# Zulu CA build straight from Azul's CDN. The SHA-256 pins the download. jlink copies blocked.certs
+# from the JDK it runs, so it must be the fixed one.
+# TEMP: go back to azul/zulu-openjdk-debian once it publishes a tag with the fix.
+FROM debian:bookworm-slim AS jre
+ARG JAVA_VERSION
+ARG TARGETARCH
+# Update these together with java.version.
+ARG ZULU_SHA256_AMD64=dd8cf0628cfb8c369b7d4fe96783e2b516482b37d2b3e140b208c91deabf1169
+ARG ZULU_SHA256_ARM64=783460592bc66c9290b14c32a537b29da812bd62ad53bf6cb565355bca7ea563
 
 # Needed for --strip-debug
-RUN apt-get -y update && apt-get -y upgrade libssl3 && apt-get -y install binutils
+RUN apt-get -y update && apt-get -y upgrade libssl3 && apt-get -y install binutils curl ca-certificates
+
+RUN case "${TARGETARCH}" in \
+      amd64) ZULU_ARCH=x64; ZULU_SHA256="${ZULU_SHA256_AMD64}" ;; \
+      arm64) ZULU_ARCH=aarch64; ZULU_SHA256="${ZULU_SHA256_ARM64}" ;; \
+      *) echo "unsupported arch ${TARGETARCH}" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL -o /tmp/zulu.tar.gz "https://cdn.azul.com/zulu/bin/${JAVA_VERSION}-linux_${ZULU_ARCH}.tar.gz" \
+    && echo "${ZULU_SHA256}  /tmp/zulu.tar.gz" | sha256sum -c - \
+    && mkdir -p /usr/lib/jvm \
+    && tar -xzf /tmp/zulu.tar.gz -C /usr/lib/jvm \
+    && ln -s "/usr/lib/jvm/${JAVA_VERSION}-linux_${ZULU_ARCH}" /usr/lib/jvm/zulu \
+    && rm /tmp/zulu.tar.gz
+ENV JAVA_HOME=/usr/lib/jvm/zulu
+ENV PATH=${JAVA_HOME}/bin:${PATH}
 
 # Included modules cherrypicked from https://docs.oracle.com/en/java/javase/21/docs/api/
 #
@@ -43,6 +67,10 @@ java.net.http,\
 # zip, jar file systems
 jdk.zipfs\
  --output jre
+
+# Fail the build if the fixed blocklist did not make it through jlink.
+# 7BA62FEC... is one of the fingerprints added by the 2026-10-21 out-of-cycle release.
+RUN grep -q 7BA62FEC54E9D040556FCA70A6A88F03761C178FA1F7CB8390A73076849F55A2 /jre/lib/security/blocked.certs
 
 # Extract java SSL certs
 FROM gcr.io/distroless/java-base-debian12:debug AS ssl
