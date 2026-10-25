@@ -17,7 +17,7 @@ jobs:
         shell: bash
         id: args
         run: |
-          BASE_IMAGE="gcr.io/distroless/cc-debian12"
+          BASE_IMAGE="gcr.io/distroless/cc-debian13"
           BASE_IMAGE_TAG="debug"
           BASE_IMAGE_DIGEST=$(gcloud container images list-tags $BASE_IMAGE --format json | jq --arg tag "$BASE_IMAGE_TAG" -r '.[] | {digest: .digest, tag: .tags[]} | select(.tag == $tag) | .digest')
           if [ -n "$BASE_IMAGE_DIGEST" ]; then
