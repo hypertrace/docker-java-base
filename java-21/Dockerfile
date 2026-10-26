@@ -5,7 +5,7 @@ ARG BASE_IMAGE
 # Zulu CA build straight from Azul's CDN. The SHA-256 pins the download. jlink copies blocked.certs
 # from the JDK it runs, so it must be the fixed one.
 # TEMP: go back to azul/zulu-openjdk-debian once it publishes a tag with the fix.
-FROM debian:bookworm-slim AS jre
+FROM debian:trixie-slim AS jre
 ARG JAVA_VERSION
 ARG TARGETARCH
 # Update these together with java.version.
@@ -73,9 +73,9 @@ jdk.zipfs\
 RUN grep -q 7BA62FEC54E9D040556FCA70A6A88F03761C178FA1F7CB8390A73076849F55A2 /jre/lib/security/blocked.certs
 
 # Extract java SSL certs
-FROM gcr.io/distroless/java-base-debian12:debug AS ssl
+FROM gcr.io/distroless/java-base-debian13:debug AS ssl
 
-FROM debian:bookworm-slim AS builder
+FROM debian:trixie-slim AS builder
 RUN apt update && apt install -y libjemalloc-dev
 
 # stage for amd64
@@ -84,8 +84,8 @@ FROM ${BASE_IMAGE} AS base-amd64
 SHELL ["/busybox/sh", "-c"]
 RUN ln -s /busybox/sh /bin/sh
 
-COPY --from=jre /lib/x86_64-linux-gnu/libz.so.1.2.13 /lib/x86_64-linux-gnu/libz.so.1.2.13
-RUN ln -s /lib/x86_64-linux-gnu/libz.so.1.2.13 /lib/x86_64-linux-gnu/libz.so.1
+# libz.so.1 is already present in the base image
+RUN test -e /lib/x86_64-linux-gnu/libz.so.1
 
 # change default memory allocator to jemalloc
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libjemalloc* /usr/lib/x86_64-linux-gnu/
@@ -97,8 +97,8 @@ FROM ${BASE_IMAGE} AS base-arm64
 SHELL ["/busybox/sh", "-c"]
 RUN ln -s /busybox/sh /bin/sh
 
-COPY --from=jre /lib/aarch64-linux-gnu/libz.so.1.2.13 /lib/aarch64-linux-gnu/libz.so.1.2.13
-RUN ln -s /lib/aarch64-linux-gnu/libz.so.1.2.13 /lib/aarch64-linux-gnu/libz.so.1
+# libz.so.1 is already present in the base image
+RUN test -e /lib/aarch64-linux-gnu/libz.so.1
 
 # change default memory allocator to jemalloc
 COPY --from=builder /usr/lib/aarch64-linux-gnu/libjemalloc* /usr/lib/aarch64-linux-gnu/
