@@ -1,5 +1,4 @@
-# Zulu build name, e.g. zulu21.54.107-ca-jdk21.0.13 (see java.version)
-ARG JAVA_VERSION
+# Zulu build name, e.g. zulu21.54.109-ca-jdk21.0.13.0.3 (see java.version)
 ARG BASE_IMAGE
 # The azul/zulu-openjdk-debian image has no tag with the eMudhra blocked.certs fix yet, so fetch the
 # Zulu CA build straight from Azul's CDN. The SHA-256 pins the download. jlink copies blocked.certs
@@ -9,8 +8,8 @@ FROM debian:trixie-slim AS jre
 ARG JAVA_VERSION
 ARG TARGETARCH
 # Update these together with java.version.
-ARG ZULU_SHA256_AMD64=dd8cf0628cfb8c369b7d4fe96783e2b516482b37d2b3e140b208c91deabf1169
-ARG ZULU_SHA256_ARM64=783460592bc66c9290b14c32a537b29da812bd62ad53bf6cb565355bca7ea563
+ARG ZULU_SHA256_AMD64=abe544103f1c4f0cc4b8997c0cac847eb1e842382eef57ce361c982fb0a3de11
+ARG ZULU_SHA256_ARM64=eb6b89b23b9eb5661b29a4e8c09e8e91952cbdfa87045d36e9078e37388c2dc3
 
 # Needed for --strip-debug
 RUN apt-get -y update && apt-get -y upgrade libssl3 && apt-get -y install binutils curl ca-certificates
