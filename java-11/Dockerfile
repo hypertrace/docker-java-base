@@ -1,5 +1,4 @@
-# Zulu build name, e.g. zulu11.54.107-ca-jdk11.0.13 (see java.version)
-ARG JAVA_VERSION
+# Zulu build name, e.g. zulu11.92.109-ca-jdk11.0.33 (see java.version)
 ARG BASE_IMAGE
 # The azul/zulu-openjdk-debian image has no tag with the eMudhra blocked.certs fix yet, so fetch the
 # Zulu CA build straight from Azul's CDN. The SHA-256 pins the download. jlink copies blocked.certs
