@@ -9,8 +9,8 @@ FROM debian:trixie-slim AS jre
 ARG JAVA_VERSION
 ARG TARGETARCH
 # Update these together with java.version.
-ARG ZULU_SHA256_AMD64=64658a2be5140c2ffd571c0e09ac3b505a2be0d4654e09957b584b54b4dac8b5
-ARG ZULU_SHA256_ARM64=abed984a694d4da40662ec0bdfd2ecbe798bab1b8ce784d4f02d00479d53e802
+ARG ZULU_SHA256_AMD64=9394707fa2ede9929cee172bc0ac5b7cfe9f6af35e5768bf974515a3faa39c67
+ARG ZULU_SHA256_ARM64=b348c48a53d9f96f0968a20d8c4d65a29a23c36c16461622aa3e18f6db8df772
 
 # Needed for --strip-debug
 RUN apt-get -y update && apt-get -y upgrade libssl3 && apt-get -y install binutils curl ca-certificates
