@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         java-major-version: [11, 21]
@@ -38,7 +38,7 @@ jobs:
           echo BASE_IMAGE=${BASE_IMAGE} >> $GITHUB_OUTPUT
 
       - name: Build java-${{ matrix.java-major-version}}
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: java-${{ matrix.java-major-version}}
           platforms: ${{ matrix.platform }}
@@ -53,5 +53,4 @@ jobs:
         with:
           image: hypertrace/java-build
           tag: ${{ matrix.java-major-version}}
-          category: java-${{ matrix.java-major-version}}
-          output-mode: github
+          output-mode: log
